@@ -1,0 +1,22 @@
+{
+  "name": "vue2-dlg-lib-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build:lib": "npm run build -w packages/vue2-dlg-lib",
+    "build:demo": "npm run build -w packages/demo",
+    "build": "npm run build:lib && npm run build:demo",
+    "serve": "npm run serve -w packages/demo",
+    "lint": "eslint --ext .js,.vue packages/"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/eslint-parser": "^7.28.6",
+    "@babel/preset-env": "^7.24.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-vue": "^9.33.0"
+  }
+}
