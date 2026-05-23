@@ -6,7 +6,8 @@
       <button @click="openComponentDialog">Dialog with Component</button>
       <button @click="openStackedDialog">Stacked Dialog (nested)</button>
       <button @click="openCustomFooterDialog">Custom Footer</button>
-      <button @click="openSizedDialog">Custom Size (60vw x 50vh)</button>
+      <button @click="openSizedDialog('60vw', '50vh')">Custom Size (60vw x 50vh)</button>
+      <button @click="openSizedDialog('120vw', '120vh')">Custom Size (120vw x 120vh)</button>
       <button @click="openNonClosableDialog">No Close on Outside Click</button>
     </div>
     <div v-if="result" class="demo-result">
@@ -115,13 +116,13 @@ export default {
         });
     },
 
-    openSizedDialog() {
+    openSizedDialog(width, height) {
       this.clearStatus();
       this.$dialog
         .open({
           title: "Custom Size Dialog",
-          width: "60vw",
-          height: "50vh",
+          width,
+          height,
         })
         .then((data) => {
           this.result = JSON.stringify(data);

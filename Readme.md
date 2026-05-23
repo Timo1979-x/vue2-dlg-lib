@@ -12,11 +12,11 @@ npm install vue2-dlg-lib
 
 ### Подключение через CDN
 
-Собранный бандл доступен в директории `dist/` пакета:
+Собранный бандл доступен в директории `packages/vue2-dlg-lib/dist/` пакета:
 
 ```html
-<link rel="stylesheet" href="path/to/vue2-dlg-lib.css">
-<script src="path/to/vue2-dlg-lib.js"></script>
+<link rel="stylesheet" href="path/to/vue2-dlg-lib/packages/vue2-dlg-lib/dist/vue2-dlg-lib.css">
+<script src="path/to/vue2-dlg-lib/packages/vue2-dlg-lib/dist/vue2-dlg-lib.js"></script>
 ```
 
 ## Использование
@@ -25,7 +25,8 @@ npm install vue2-dlg-lib
 
 ```js
 import Vue from 'vue';
-import VueDialogLibrary from 'vue2-dlg-lib';
+import VueDialogLibrary from "vue2-dlg-lib/packages/vue2-dlg-lib";
+import 'vue2-dlg-lib/packages/vue2-dlg-lib/dist/vue2-dlg-lib.css'
 
 Vue.use(VueDialogLibrary);
 
