@@ -24,6 +24,8 @@ npm run build:lib      # library only (webpack --mode production)
 npm run build:demo     # demo only
 npm run serve          # webpack-dev-server for demo
 npm run lint           # eslint .js,.vue in packages/ (root)
+npm run test           # vitest run (uses vitest.config.js at root)
+npm run test:watch     # vitest in watch mode
 ```
 
 Pre-push hook runs `npm run build:lib`.
@@ -45,7 +47,8 @@ Pre-push hook runs `npm run build:lib`.
 - Z-index layers: dialogs 2000+ (step 10), popup menus 2500+, toasts 3000
 - Components use PascalCase filenames (`DialogWindow.vue`), managers use camelCase (`DialogManager.js`)
 - Single-file components with `<style scoped>`
-- No typechecking, no test framework
+- **Tests**: Vitest with `@vue/test-utils@1`, `jsdom`, `@vitejs/plugin-vue2`. Tests live in `packages/vue2-dlg-lib/src/__tests__/*.test.js`
+- `vue-template-compiler` version must match `vue` exactly (both ^2.7.16)
 
 ## Usage (without `Vue.use()`)
 
@@ -57,6 +60,5 @@ dialog.open({ title: 'Hello' });
 
 ## Key constraints
 
-- No tests exist — do not add test infrastructure unless explicitly asked
 - `vue-template-compiler` version must match `vue` exactly (both ^2.7.16)
 - Lockfile is `package-lock.json` (npm, not yarn/pnpm)

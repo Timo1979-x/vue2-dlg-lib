@@ -85,7 +85,7 @@ export default class PopupMenuManager {
   }
 
   closeAll() {
-    this.activeMenus.forEach((entry) => {
+    [...this.activeMenus].forEach((entry) => {
       entry.reject('closed all');
     });
   }

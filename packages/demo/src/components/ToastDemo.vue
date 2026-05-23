@@ -2,15 +2,33 @@
   <div class="demo-section">
     <h2>Toast Messages</h2>
     <div class="demo-buttons">
-      <button @click="showDefaultToast">Default Toast</button>
-      <button @click="showSuccessToast">Success Toast</button>
-      <button @click="showWarningToast">Warning Toast</button>
-      <button @click="showErrorToast">Error Toast</button>
-      <button @click="showShortDurationToast">Short Duration (2s)</button>
-      <button @click="showLongDurationToast">Long Duration (10s)</button>
-      <button @click="showPersistentToast">Persistent (no auto-close)</button>
-      <button @click="showMultipleToasts">Show 3 Auto-Close Toasts</button>
-      <button @click="closeAllToasts">Close All Toasts</button>
+      <button @click="showDefaultToast">
+        Default Toast
+      </button>
+      <button @click="showSuccessToast">
+        Success Toast
+      </button>
+      <button @click="showWarningToast">
+        Warning Toast
+      </button>
+      <button @click="showErrorToast">
+        Error Toast
+      </button>
+      <button @click="showShortDurationToast">
+        Short Duration (2s)
+      </button>
+      <button @click="showLongDurationToast">
+        Long Duration (10s)
+      </button>
+      <button @click="showPersistentToast">
+        Persistent (no auto-close)
+      </button>
+      <button @click="showMultipleToasts">
+        Show 3 Auto-Close Toasts
+      </button>
+      <button @click="closeAllToasts">
+        Close All Toasts
+      </button>
     </div>
     <div class="demo-info">
       <strong>Active toasts:</strong> {{ activeCount }}

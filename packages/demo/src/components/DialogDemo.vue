@@ -2,20 +2,34 @@
   <div class="demo-section">
     <h2>Modal Dialogs</h2>
     <div class="demo-buttons">
-      <button @click="openBasicDialog">Basic Dialog</button>
-      <button @click="openComponentDialog">Dialog with Component</button>
-      <button @click="openStackedDialog">Stacked Dialog (nested)</button>
-      <button @click="openCustomFooterDialog">Custom Footer</button>
-      <button @click="openSizedDialog('60vw', '50vh')">Custom Size (60vw x 50vh)</button>
-      <button @click="openSizedDialog('120vw', '120vh')">Custom Size (120vw x 120vh)</button>
-      <button @click="openNonClosableDialog">No Close on Outside Click</button>
+      <button @click="openBasicDialog">
+        Basic Dialog
+      </button>
+      <button @click="openComponentDialog">
+        Dialog with Component
+      </button>
+      <button @click="openStackedDialog">
+        Stacked Dialog (nested)
+      </button>
+      <button @click="openCustomFooterDialog">
+        Custom Footer
+      </button>
+      <button @click="openSizedDialog('60vw', '50vh')">
+        Custom Size (60vw x 50vh)
+      </button>
+      <button @click="openSizedDialog('120vw', '120vh')">
+        Custom Size (120vw x 120vh)
+      </button>
+      <button @click="openNonClosableDialog">
+        No Close on Outside Click
+      </button>
     </div>
     <div v-if="result" class="demo-result">
       <strong>Result:</strong> {{ result }}
     </div>
     <div v-if="error" class="demo-error">
       <strong>Error:</strong> {{ error }}
-      <span @click="clearStatus" class="close-button">x</span>
+      <span class="close-button" @click="clearStatus">x</span>
     </div>
   </div>
 </template>

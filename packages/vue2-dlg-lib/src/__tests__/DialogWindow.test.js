@@ -1,0 +1,146 @@
+import { describe, it, expect, afterEach } from 'vitest'
+import { mount } from '@vue/test-utils'
+import DialogWindow from '../dialog/DialogWindow.vue'
+
+describe('DialogWindow', () => {
+  let wrapper
+
+  afterEach(() => {
+    if (wrapper) {
+      wrapper.destroy()
+    }
+  })
+
+  it('renders title prop', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Тестовый диалог' },
+    })
+    expect(wrapper.find('.vdl-dialog__title').text()).toBe('Тестовый диалог')
+  })
+
+  it('emits reject on close button click', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test' },
+    })
+    await wrapper.find('.vdl-dialog__btn--close').trigger('click')
+    expect(wrapper.emitted('reject')).toBeTruthy()
+    expect(wrapper.emitted('reject')[0]).toEqual(['closed'])
+  })
+
+  it('emits reject on overlay click when closeOnClickOutside is true', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', closeOnClickOutside: true },
+    })
+    await wrapper.find('.vdl-dialog-overlay').trigger('mousedown')
+    expect(wrapper.emitted('reject')).toBeTruthy()
+    expect(wrapper.emitted('reject')[0]).toEqual(['closed by outside click'])
+  })
+
+  it('does not emit reject on overlay click when closeOnClickOutside is false', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', closeOnClickOutside: false },
+    })
+    await wrapper.find('.vdl-dialog-overlay').trigger('mousedown')
+    expect(wrapper.emitted('reject')).toBeFalsy()
+  })
+
+  it('renders contentComponent and passes dialogResolve/dialogReject props', () => {
+    const TestComponent = {
+      template: '<div><p class="greeting">{{ greeting }}</p></div>',
+      props: ['greeting', 'dialogResolve', 'dialogReject'],
+    }
+    wrapper = mount(DialogWindow, {
+      propsData: {
+        title: 'Test',
+        contentComponent: TestComponent,
+        contentProps: { greeting: 'Hello' },
+      },
+    })
+    expect(wrapper.find('.greeting').text()).toBe('Hello')
+  })
+
+  it('renders default slot content', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test' },
+      slots: { default: '<p class="custom-body">Custom body content</p>' },
+    })
+    expect(wrapper.find('.custom-body').text()).toBe('Custom body content')
+  })
+
+  it('renders footer slot over default footer', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test' },
+      slots: { footer: '<button class="custom-footer-btn">OK</button>' },
+    })
+    expect(wrapper.find('.custom-footer-btn').exists()).toBe(true)
+    expect(wrapper.find('.vdl-dialog__btn--primary').exists()).toBe(false)
+  })
+
+  it('renders default footer with close button when no footer slot', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test' },
+    })
+    expect(wrapper.find('.vdl-dialog__btn--primary').exists()).toBe(true)
+    expect(wrapper.find('.vdl-dialog__btn--primary').text()).toBe('Закрыть')
+  })
+
+  it('default footer close button emits reject', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test' },
+    })
+    await wrapper.find('.vdl-dialog__btn--primary').trigger('click')
+    expect(wrapper.emitted('reject')).toBeTruthy()
+  })
+
+  it('toggles isMaximized on maximize button click', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test' },
+    })
+    const buttons = wrapper.findAll('.vdl-dialog__btn--icon')
+    const maxBtn = buttons.at(0)
+    expect(wrapper.vm.isMaximized).toBe(false)
+    await maxBtn.trigger('click')
+    expect(wrapper.vm.isMaximized).toBe(true)
+    await maxBtn.trigger('click')
+    expect(wrapper.vm.isMaximized).toBe(false)
+  })
+
+  it('applies overlay z-index from prop', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', zIndex: 2020 },
+    })
+    const overlay = wrapper.find('.vdl-dialog-overlay')
+    expect(overlay.attributes('style')).toContain('z-index: 2020')
+  })
+
+  it('emits bring-to-front on dialog mousedown', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test' },
+    })
+    await wrapper.find('.vdl-dialog').trigger('mousedown')
+    expect(wrapper.emitted('bring-to-front')).toBeTruthy()
+  })
+
+  it('shows resize handle when resizable is true and not maximized', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', resizable: true },
+    })
+    expect(wrapper.find('.vdl-dialog__resize-handle').exists()).toBe(true)
+  })
+
+  it('hides resize handle when resizable is false', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', resizable: false },
+    })
+    expect(wrapper.find('.vdl-dialog__resize-handle').exists()).toBe(false)
+  })
+
+  it('hides resize handle when maximized', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', resizable: true },
+    })
+    const maxBtn = wrapper.findAll('.vdl-dialog__btn--icon').at(0)
+    await maxBtn.trigger('click')
+    expect(wrapper.find('.vdl-dialog__resize-handle').exists()).toBe(false)
+  })
+})

@@ -3,9 +3,8 @@ const { VueLoaderPlugin } = require("vue-loader");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
+// eslint-disable-next-line no-unused-vars
 module.exports = (env, argv) => {
-  const isDev = argv.mode === "development";
-
   return {
     entry: "./src/main.js",
     output: {
