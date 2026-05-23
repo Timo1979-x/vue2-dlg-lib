@@ -163,6 +163,7 @@ export default {
   mounted() {
     document.addEventListener('mousemove', this.onMouseMove);
     document.addEventListener('mouseup', this.onMouseUp);
+    this.$nextTick(this.adjustPosition);
   },
 
   beforeDestroy() {
@@ -219,6 +220,23 @@ export default {
         this.currentHeight = rect.height;
       }
       this.isMaximized = !this.isMaximized;
+    },
+
+    adjustPosition() {
+      const dialog = this.$refs.dialog;
+      if (!dialog || this.isMaximized) return;
+
+      const rect = dialog.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const MARGIN = 10;
+
+      if (rect.top >= 0 && rect.left >= 0 && rect.bottom <= vh && rect.right <= vw) {
+        return;
+      }
+
+      this.currentLeft = Math.max(MARGIN, Math.min(vw - rect.width - MARGIN, rect.left));
+      this.currentTop = Math.max(MARGIN, Math.min(vh - rect.height - MARGIN, rect.top));
     },
 
     startDrag(e) {
