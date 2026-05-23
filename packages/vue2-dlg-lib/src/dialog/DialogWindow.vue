@@ -18,14 +18,14 @@
             :title="isMaximized ? 'Восстановить размер' : 'Развернуть на весь экран'"
             @click.stop="toggleMaximize"
           >
-            {{ isMaximized ? '\u25C6' : '\u29C2' }}
+            {{ isMaximized ? '\u{1F5D7}' : '\u{1F5D6}' }}
           </button>
           <button
             class="vdl-dialog__btn vdl-dialog__btn--icon vdl-dialog__btn--close"
             title="Закрыть"
             @click.stop="handleClose"
           >
-            &#x2715;
+            &#x1F5D9;
           </button>
         </div>
       </div>
@@ -268,8 +268,10 @@ export default {
       }
 
       if (this.isResizing) {
-        const dx = e.clientX - this.resizeStartX;
-        const dy = e.clientY - this.resizeStartY;
+        let dx = e.clientX - this.resizeStartX;
+        if (this.currentLeft == null) dx *= 2;
+        let dy = e.clientY - this.resizeStartY;
+        if (this.currentTop == null) dy *= 2;
         const minWidth = this.parsePixel(this.minWidth, 'width', 280);
         const minHeight = this.parsePixel(this.minHeight, 'height', 180);
         const newWidth = Math.max(minWidth, this.resizeInitialWidth + dx);
