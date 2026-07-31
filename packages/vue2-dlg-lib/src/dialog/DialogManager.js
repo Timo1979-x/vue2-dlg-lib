@@ -61,6 +61,7 @@ export default class DialogManager {
       closeOnClickOutside = true,
       resizable = true,
       draggable = true,
+      footer = null,
     } = options;
 
     return new Promise((resolve, reject) => {
@@ -115,6 +116,16 @@ export default class DialogManager {
           zIndex,
         },
       });
+
+      if (typeof footer === 'function') {
+        const footerVnodes = footer(vm.$createElement, {
+          resolve: entry.resolve,
+          reject: entry.reject,
+        });
+        vm.$slots.footer = footerVnodes
+          ? (Array.isArray(footerVnodes) ? footerVnodes : [footerVnodes])
+          : [];
+      }
 
       vm.$on('resolve', entry.resolve);
       vm.$on('reject', entry.reject);

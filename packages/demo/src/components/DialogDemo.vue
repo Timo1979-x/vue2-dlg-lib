@@ -37,6 +37,7 @@
 <script>
 import SampleDialogContent from "./SampleDialogContent.vue";
 import StackedDemoContent from "./StackedDemoContent.vue";
+import CustomFooterContent from "./CustomFooterContent.vue";
 
 export default {
   name: "DialogDemo",
@@ -114,13 +115,31 @@ export default {
       this.$dialog
         .open({
           title: "Custom Footer Dialog",
-          contentComponent: SampleDialogContent,
+          contentComponent: CustomFooterContent,
           contentProps: {
             message:
               "This dialog has a custom footer with Approve/Deny buttons.",
           },
           width: "480px",
           height: "320px",
+          footer: (h, { resolve, reject }) => [
+            h(
+              "button",
+              {
+                class: "vdl-dialog__btn",
+                on: { click: () => reject("user denied") },
+              },
+              "Deny"
+            ),
+            h(
+              "button",
+              {
+                class: "vdl-dialog__btn vdl-dialog__btn--primary",
+                on: { click: () => resolve({ approved: true }) },
+              },
+              "Approve"
+            ),
+          ],
         })
         .then((data) => {
           this.result = JSON.stringify(data);

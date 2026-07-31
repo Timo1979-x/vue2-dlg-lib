@@ -28,7 +28,7 @@ npm run test           # vitest run (uses vitest.config.js at root)
 npm run test:watch     # vitest in watch mode
 ```
 
-Pre-push hook runs `npm run build:lib`.
+Husky pre-commit hook runs `npm run test` and `npm run build:lib`.
 
 ## Tech stack
 

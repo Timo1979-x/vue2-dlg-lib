@@ -108,4 +108,52 @@ describe('DialogManager', () => {
     expect(el).toBeTruthy()
     expect(el.tagName).toBe('DIV')
   })
+
+  it('renders default footer with close button when no footer option', () => {
+    manager.open({ title: 'test' })
+    expect(document.querySelector('.vdl-dialog__btn--primary')).toBeTruthy()
+  })
+
+  it('renders custom footer buttons from footer render function', () => {
+    manager.open({
+      title: 'test',
+      footer: (h) => [
+        h('button', { class: 'custom-footer-deny', on: { click: () => {} } }, 'Deny'),
+        h('button', { class: 'custom-footer-approve', on: { click: () => {} } }, 'Approve'),
+      ],
+    })
+    const deny = document.querySelector('.custom-footer-deny')
+    const approve = document.querySelector('.custom-footer-approve')
+    expect(deny).toBeTruthy()
+    expect(deny.textContent).toBe('Deny')
+    expect(approve).toBeTruthy()
+    expect(approve.textContent).toBe('Approve')
+    expect(document.querySelector('.vdl-dialog__btn--primary')).toBeNull()
+  })
+
+  it('custom footer button resolves the dialog promise', async () => {
+    const p = manager.open({
+      title: 'test',
+      footer: (h, { resolve }) => h('button', {
+        class: 'custom-footer-approve',
+        on: { click: () => resolve({ approved: true }) },
+      }, 'Approve'),
+    })
+    document.querySelector('.custom-footer-approve').click()
+    expect(manager.size).toBe(0)
+    await expect(p).resolves.toEqual({ approved: true })
+  })
+
+  it('custom footer button rejects the dialog promise', async () => {
+    const p = manager.open({
+      title: 'test',
+      footer: (h, { reject }) => h('button', {
+        class: 'custom-footer-deny',
+        on: { click: () => reject('user denied') },
+      }, 'Deny'),
+    })
+    document.querySelector('.custom-footer-deny').click()
+    expect(manager.size).toBe(0)
+    await expect(p).rejects.toBe('user denied')
+  })
 })

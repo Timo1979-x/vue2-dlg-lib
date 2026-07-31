@@ -48,3 +48,52 @@
 - меню должно пропадать с экрана при нажатии на Escape или клике вне пределов меню
 - Навигация по пунктам меню с помощью стрелок на клавиатуре
 - Меню должно поддерживать Javascript promises
+
+### Кастомные кнопки в футере диалога
+
+По умолчанию в футере отображается одна кнопка «Закрыть», которая посылает `reject` вызывающему коду. Чтобы задать свои кнопки, передайте в `DialogManager.open()` (или `$dialog.open()`) опцию `footer` — функцию рендера:
+
+```js
+this.$dialog.open({
+  title: 'Подтверждение',
+  contentComponent: MyContent,
+  footer: (h, { resolve, reject }) => [
+    h(
+      'button',
+      {
+        class: 'vdl-dialog__btn',
+        on: { click: () => reject('user denied') },
+      },
+      'Отклонить'
+    ),
+    h(
+      'button',
+      {
+        class: 'vdl-dialog__btn vdl-dialog__btn--primary',
+        on: { click: () => resolve({ approved: true }) },
+      },
+      'Одобрить'
+    ),
+  ],
+});
+```
+
+- `h` — функция `createElement` Vue.
+- Второй аргумент — хелперы:
+  - `resolve(data)` — закрывает диалог и резолвит промис с переданными данными;
+  - `reject(reason)` — закрывает диалог и реджектит промис с указанной причиной.
+- Функция может возвращать один vnode или массив vnodes.
+- Вместо нативных кнопок можно возвращать компоненты: `h(MyButton, { props: { ... } })`.
+- Если `footer` не задан или возвращает пустой результат, выводится кнопка «Закрыть» по умолчанию.
+
+При рендере `DialogWindow` как обычного компонента кастомный footer задаётся слотом:
+
+```html
+<dialog-window title="Подтверждение">
+  <template #footer>
+    <button @click="reject('user denied')">Отклонить</button>
+    <button @click="resolve({ approved: true })">Одобрить</button>
+  </template>
+</dialog-window>
+```
+
