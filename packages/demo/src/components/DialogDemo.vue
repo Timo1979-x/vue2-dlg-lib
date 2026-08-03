@@ -14,6 +14,9 @@
       <button @click="openCustomFooterDialog">
         Custom Footer
       </button>
+      <button @click="openStandardButtonsDialog">
+        Standard Buttons (bitmask)
+      </button>
       <button @click="openSizedDialog('60vw', '50vh')">
         Custom Size (60vw x 50vh)
       </button>
@@ -38,6 +41,7 @@
 import SampleDialogContent from "./SampleDialogContent.vue";
 import StackedDemoContent from "./StackedDemoContent.vue";
 import CustomFooterContent from "./CustomFooterContent.vue";
+import { FOOTER_BUTTONS } from "vue2-dlg-lib";
 
 export default {
   name: "DialogDemo",
@@ -118,31 +122,32 @@ export default {
           contentComponent: CustomFooterContent,
           contentProps: {
             message:
-              "This dialog has a custom footer with Approve/Deny buttons.",
+              "This dialog has a custom footer with Approve/Deny buttons defined by the child component's named slot.",
           },
           width: "480px",
           height: "320px",
-          footer: (h, { resolve, reject }) => [
-            h(
-              "button",
-              {
-                class: "vdl-dialog__btn",
-                on: { click: () => reject("user denied") },
-              },
-              "Deny"
-            ),
-            h(
-              "button",
-              {
-                class: "vdl-dialog__btn vdl-dialog__btn--primary",
-                on: { click: () => resolve({ approved: true }) },
-              },
-              "Approve"
-            ),
-          ],
         })
         .then((data) => {
           this.result = JSON.stringify(data);
+        })
+        .catch((reason) => {
+          this.error = "Rejected: " + reason;
+        });
+    },
+
+    openStandardButtonsDialog() {
+      this.clearStatus();
+
+      this.$dialog
+        .open({
+          title: "Standard Buttons Dialog",
+          footerButtons:
+            FOOTER_BUTTONS.OK | FOOTER_BUTTONS.YES | FOOTER_BUTTONS.NO | FOOTER_BUTTONS.CLOSE | FOOTER_BUTTONS.CANCEL,
+          width: "480px",
+          height: "320px",
+        })
+        .then((data) => {
+          this.result = "Resolved: " + data;
         })
         .catch((reason) => {
           this.error = "Rejected: " + reason;

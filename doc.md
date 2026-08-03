@@ -49,42 +49,67 @@
 - Навигация по пунктам меню с помощью стрелок на клавиатуре
 - Меню должно поддерживать Javascript promises
 
-### Кастомные кнопки в футере диалога
+### Кнопки в футере диалога
 
-По умолчанию в футере отображается одна кнопка «Закрыть», которая посылает `reject` вызывающему коду. Чтобы задать свои кнопки, передайте в `DialogManager.open()` (или `$dialog.open()`) опцию `footer` — функцию рендера:
+Кнопки футера определяются дочерним компонентом (тем, который рендерится в теле модального окна) через именованный слот `footer`:
+
+```vue
+<!-- MyContent.vue -->
+<template>
+  <div>
+    <p>Содержимое диалога</p>
+    <template slot="footer">
+      <button class="vdl-dialog__btn" @click="handleCancel">Отмена</button>
+      <button class="vdl-dialog__btn vdl-dialog__btn--primary" @click="handleOk">Ок</button>
+    </template>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    dialogResolve: Function,
+    dialogReject: Function,
+  },
+  methods: {
+    handleOk() {
+      this.dialogResolve({ confirmed: true });
+    },
+    handleCancel() {
+      this.dialogReject('user cancelled');
+    },
+  },
+};
+</script>
+```
 
 ```js
 this.$dialog.open({
   title: 'Подтверждение',
   contentComponent: MyContent,
-  footer: (h, { resolve, reject }) => [
-    h(
-      'button',
-      {
-        class: 'vdl-dialog__btn',
-        on: { click: () => reject('user denied') },
-      },
-      'Отклонить'
-    ),
-    h(
-      'button',
-      {
-        class: 'vdl-dialog__btn vdl-dialog__btn--primary',
-        on: { click: () => resolve({ approved: true }) },
-      },
-      'Одобрить'
-    ),
-  ],
 });
 ```
 
-- `h` — функция `createElement` Vue.
-- Второй аргумент — хелперы:
-  - `resolve(data)` — закрывает диалог и резолвит промис с переданными данными;
-  - `reject(reason)` — закрывает диалог и реджектит промис с указанной причиной.
-- Функция может возвращать один vnode или массив vnodes.
-- Вместо нативных кнопок можно возвращать компоненты: `h(MyButton, { props: { ... } })`.
-- Если `footer` не задан или возвращает пустой результат, выводится кнопка «Закрыть» по умолчанию.
+Если дочерний компонент не содержит именованного слота `footer`, кнопки отрисовываются самой библиотекой. Их состав задаётся битовой маской `footerButtons`:
+
+```js
+import { FOOTER_BUTTONS } from 'vue2-dlg-lib';
+
+this.$dialog.open({
+  title: 'Подтверждение',
+  footerButtons: FOOTER_BUTTONS.OK | FOOTER_BUTTONS.CANCEL,
+});
+```
+
+Доступные кнопки:
+
+- `FOOTER_BUTTONS.OK` («Ок») — `resolve(1)`
+- `FOOTER_BUTTONS.YES` («Да») — `resolve(2)`
+- `FOOTER_BUTTONS.NO` («Нет») — `resolve(4)`
+- `FOOTER_BUTTONS.CLOSE` («Закрыть») — `reject(8)`
+- `FOOTER_BUTTONS.CANCEL` («Отмена») — `reject(16)`
+
+Кнопки «Закрыть» и «Отмена» генерируют `reject` промиса, остальные — `resolve`. В `resolve`/`reject` передаётся значение битовой маски нажатой кнопки. По умолчанию отображается кнопка «Закрыть».
 
 При рендере `DialogWindow` как обычного компонента кастомный footer задаётся слотом:
 

@@ -69,6 +69,7 @@ this.$dialog.open({
 | `closeOnClickOutside` | `Boolean` | `true` | Закрывать диалог при клике вне его границ |
 | `resizable` | `Boolean` | `true` | Разрешить изменение размера мышью |
 | `draggable` | `Boolean` | `true` | Разрешить перетаскивание за заголовок |
+| `footerButtons` | `Number` | `FOOTER_BUTTONS.CLOSE` | Битовое поле стандартных кнопок футера (см. ниже) |
 
 ### Диалог с компонентом
 
@@ -121,6 +122,69 @@ export default {
 };
 </script>
 ```
+
+### Кнопки в футере
+
+Кнопки футера могут задаваться двумя способами.
+
+**1. Именованный слот дочернего компонента.**
+
+Если компонент, отображаемый в теле диалога (`contentComponent`), содержит именованный слот `footer`, его содержимое отрисовывается в футере диалога:
+
+```vue
+<!-- ConfirmContent.vue -->
+<template>
+  <div>
+    <p>Вы уверены?</p>
+    <template slot="footer">
+      <button class="vdl-dialog__btn" @click="handleCancel">Отмена</button>
+      <button class="vdl-dialog__btn vdl-dialog__btn--primary" @click="handleOk">Ок</button>
+    </template>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    dialogResolve: Function,
+    dialogReject: Function,
+  },
+  methods: {
+    handleOk() {
+      this.dialogResolve({ confirmed: true });
+    },
+    handleCancel() {
+      this.dialogReject('cancelled');
+    },
+  },
+};
+</script>
+```
+
+**2. Стандартные кнопки через битовую маску.**
+
+Если дочерний компонент не содержит слота `footer`, библиотека отрисовывает стандартные кнопки. Их состав задаётся опцией `footerButtons` — битовой маской:
+
+```js
+import { FOOTER_BUTTONS } from 'vue2-dlg-lib';
+
+this.$dialog.open({
+  title: 'Подтверждение',
+  footerButtons: FOOTER_BUTTONS.OK | FOOTER_BUTTONS.CANCEL,
+});
+```
+
+Доступные кнопки и их биты:
+
+| Кнопка | Значение бита | Результат Promise |
+|--------|---------------|-------------------|
+| `FOOTER_BUTTONS.OK` («Ок») | `1` | `resolve(1)` |
+| `FOOTER_BUTTONS.YES` («Да») | `2` | `resolve(2)` |
+| `FOOTER_BUTTONS.NO` («Нет») | `4` | `resolve(4)` |
+| `FOOTER_BUTTONS.CLOSE` («Закрыть») | `8` | `reject(8)` |
+| `FOOTER_BUTTONS.CANCEL` («Отмена») | `16` | `reject(16)` |
+
+В `resolve`/`reject` передаётся значение бита нажатой кнопки. По умолчанию (`footerButtons` не задан) отображается кнопка «Закрыть».
 
 ### Нестандартный размер
 

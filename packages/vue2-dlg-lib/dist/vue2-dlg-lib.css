@@ -1,5 +1,5 @@
 
-.vdl-dialog-overlay[data-v-6cd57d58] {
+.vdl-dialog-overlay[data-v-39f8b7dc] {
   position: fixed;
   top: 0;
   left: 0;
@@ -8,7 +8,7 @@
   background: rgba(0, 0, 0, 0.5);
   display: flex;
 }
-.vdl-dialog[data-v-6cd57d58] {
+.vdl-dialog[data-v-39f8b7dc] {
   position: absolute;
   display: flex;
   flex-direction: column;
@@ -18,7 +18,7 @@
   overflow: hidden;
   user-select: none;
 }
-.vdl-dialog__header[data-v-6cd57d58] {
+.vdl-dialog__header[data-v-39f8b7dc] {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -29,7 +29,7 @@
   border-bottom: 1px solid #e0e0e0;
   cursor: move;
 }
-.vdl-dialog__title[data-v-6cd57d58] {
+.vdl-dialog__title[data-v-39f8b7dc] {
   font-size: 16px;
   font-weight: 600;
   color: #333;
@@ -38,18 +38,18 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.vdl-dialog__header-actions[data-v-6cd57d58] {
+.vdl-dialog__header-actions[data-v-39f8b7dc] {
   display: flex;
   align-items: center;
   gap: 4px;
 }
-.vdl-dialog__body[data-v-6cd57d58] {
+.vdl-dialog__body[data-v-39f8b7dc] {
   flex: 1;
   overflow: auto;
   padding: 16px;
   min-height: 0;
 }
-.vdl-dialog__footer[data-v-6cd57d58] {
+.vdl-dialog__footer[data-v-39f8b7dc] {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -60,7 +60,7 @@
   border-top: 1px solid #e0e0e0;
   gap: 8px;
 }
-.vdl-dialog__resize-handle[data-v-6cd57d58] {
+.vdl-dialog__resize-handle[data-v-39f8b7dc] {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -68,7 +68,7 @@
   height: 16px;
   cursor: nwse-resize;
 }
-.vdl-dialog__resize-handle[data-v-6cd57d58]::after {
+.vdl-dialog__resize-handle[data-v-39f8b7dc]::after {
   content: '';
   position: absolute;
   bottom: 3px;
@@ -78,7 +78,7 @@
   border-right: 2px solid #999;
   border-bottom: 2px solid #999;
 }
-.vdl-dialog__btn[data-v-6cd57d58] {
+.vdl-dialog__btn[data-v-39f8b7dc] {
   padding: 6px 16px;
   border: none;
   border-radius: 4px;
@@ -86,25 +86,25 @@
   font-size: 14px;
   transition: background-color 0.15s;
 }
-.vdl-dialog__btn--icon[data-v-6cd57d58] {
+.vdl-dialog__btn--icon[data-v-39f8b7dc] {
   padding: 4px 8px;
   background: transparent;
   font-size: 16px;
   line-height: 1;
   color: #666;
 }
-.vdl-dialog__btn--icon[data-v-6cd57d58]:hover {
+.vdl-dialog__btn--icon[data-v-39f8b7dc]:hover {
   background: #e8e8e8;
 }
-.vdl-dialog__btn--close[data-v-6cd57d58]:hover {
+.vdl-dialog__btn--close[data-v-39f8b7dc]:hover {
   background: #ff4d4f;
   color: #fff;
 }
-.vdl-dialog__btn--primary[data-v-6cd57d58] {
+.vdl-dialog__btn--primary[data-v-39f8b7dc] {
   background: #1890ff;
   color: #fff;
 }
-.vdl-dialog__btn--primary[data-v-6cd57d58]:hover {
+.vdl-dialog__btn--primary[data-v-39f8b7dc]:hover {
   background: #096dd9;
 }
 

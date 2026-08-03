@@ -92,6 +92,102 @@ describe('DialogWindow', () => {
     expect(wrapper.emitted('reject')).toBeTruthy()
   })
 
+  it('renders standard footer buttons selected by bitmask', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', footerButtons: 1 | 16 },
+    })
+    const labels = wrapper.findAll('.vdl-dialog__footer .vdl-dialog__btn').wrappers
+      .map((b) => b.text().trim())
+    expect(labels).toEqual(['Ок', 'Отмена'])
+  })
+
+  it('renders all standard footer buttons for the full bitmask', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', footerButtons: 1 | 2 | 4 | 8 | 16 },
+    })
+    const labels = wrapper.findAll('.vdl-dialog__footer .vdl-dialog__btn').wrappers
+      .map((b) => b.text().trim())
+    expect(labels).toEqual(['Ок', 'Да', 'Нет', 'Закрыть', 'Отмена'])
+  })
+
+  it('renders no footer buttons when bitmask is 0', () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', footerButtons: 0 },
+    })
+    expect(wrapper.find('.vdl-dialog__footer .vdl-dialog__btn').exists()).toBe(false)
+  })
+
+  it('Ок button emits resolve with its bitmask value', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', footerButtons: 1 | 16 },
+    })
+    const ok = wrapper.findAll('.vdl-dialog__footer .vdl-dialog__btn').wrappers
+      .find((b) => b.text().trim() === 'Ок')
+    await ok.trigger('click')
+    expect(wrapper.emitted('resolve')).toBeTruthy()
+    expect(wrapper.emitted('resolve')[0]).toEqual([1])
+  })
+
+  it('Отмена button emits reject with its bitmask value', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', footerButtons: 1 | 16 },
+    })
+    const cancel = wrapper.findAll('.vdl-dialog__footer .vdl-dialog__btn').wrappers
+      .find((b) => b.text().trim() === 'Отмена')
+    await cancel.trigger('click')
+    expect(wrapper.emitted('reject')).toBeTruthy()
+    expect(wrapper.emitted('reject')[0]).toEqual([16])
+  })
+
+  it('default close button emits reject with CLOSE bitmask value', async () => {
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test' },
+    })
+    await wrapper.find('.vdl-dialog__footer .vdl-dialog__btn--primary').trigger('click')
+    expect(wrapper.emitted('reject')[0]).toEqual([8])
+  })
+
+  it('renders footer buttons from content component named slot', async () => {
+    const Child = {
+      template: `
+        <div>
+          <p>body</p>
+          <template slot="footer">
+            <button class="child-footer-btn">Ок</button>
+          </template>
+        </div>
+      `,
+    }
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', contentComponent: Child },
+    })
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
+    const btn = wrapper.find('.child-footer-btn')
+    expect(btn.exists()).toBe(true)
+    expect(btn.text().trim()).toBe('Ок')
+  })
+
+  it('content component footer slot takes precedence over standard buttons', async () => {
+    const Child = {
+      template: `
+        <div>
+          <p>body</p>
+          <template slot="footer">
+            <button class="child-footer-btn">Ок</button>
+          </template>
+        </div>
+      `,
+    }
+    wrapper = mount(DialogWindow, {
+      propsData: { title: 'Test', contentComponent: Child, footerButtons: 8 },
+    })
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.child-footer-btn').exists()).toBe(true)
+    expect(wrapper.find('.vdl-dialog__footer .vdl-dialog__btn--primary').exists()).toBe(false)
+  })
+
   it('toggles isMaximized on maximize button click', async () => {
     wrapper = mount(DialogWindow, {
       propsData: { title: 'Test' },

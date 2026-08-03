@@ -34,6 +34,7 @@
         <component
           :is="contentComponent"
           v-else-if="contentComponent"
+          ref="contentComp"
           v-bind="contentProps"
           :dialog-resolve="resolve"
           :dialog-reject="reject"
@@ -41,12 +42,21 @@
       </div>
       <div class="vdl-dialog__footer">
         <slot name="footer">
-          <button
-            class="vdl-dialog__btn vdl-dialog__btn--primary"
-            @click="handleClose"
-          >
-            Закрыть
-          </button>
+          <slot-content-renderer
+            v-if="_childFooterVnodes && _childFooterVnodes.length"
+            :vnodes="_childFooterVnodes"
+          />
+          <template v-else>
+            <button
+              v-for="btn in footerButtonList"
+              :key="btn.value"
+              :class="['vdl-dialog__btn', { 'vdl-dialog__btn--primary': btn.primary }]"
+              :data-value="btn.value"
+              @click="handleFooterButton(btn)"
+            >
+              {{ btn.label }}
+            </button>
+          </template>
         </slot>
       </div>
       <div
@@ -59,8 +69,21 @@
 </template>
 
 <script>
+import { FOOTER_BUTTONS, FOOTER_BUTTONS_LIST } from './footerButtons';
+
+const SlotContentRenderer = {
+  functional: true,
+  render(h, ctx) {
+    return ctx.props.vnodes;
+  },
+};
+
 export default {
   name: 'DialogWindow',
+
+  components: {
+    SlotContentRenderer,
+  },
 
   props: {
     title: {
@@ -102,6 +125,10 @@ export default {
     draggable: {
       type: Boolean,
       default: true,
+    },
+    footerButtons: {
+      type: Number,
+      default: FOOTER_BUTTONS.CLOSE,
     },
     zIndex: {
       type: Number,
@@ -158,17 +185,47 @@ export default {
           : 'none',
       };
     },
+
+    footerButtonList() {
+      const list = [];
+      for (const btn of FOOTER_BUTTONS_LIST) {
+        if (this.footerButtons & btn.value) {
+          list.push({ ...btn });
+        }
+      }
+      const primaryIndex = list.findIndex((btn) => btn.action === 'resolve');
+      const index = primaryIndex === -1 ? 0 : primaryIndex;
+      if (list[index]) {
+        list[index].primary = true;
+      }
+      return list;
+    },
+  },
+
+  created() {
+    this._childFooterVnodes = [];
+    this._lastChildVnode = null;
+    this._footerHookAttached = false;
   },
 
   mounted() {
     document.addEventListener('mousemove', this.onMouseMove);
     document.addEventListener('mouseup', this.onMouseUp);
     this.$nextTick(this.adjustPosition);
+    this.syncChildFooter();
+  },
+
+  updated() {
+    this.syncChildFooter();
   },
 
   beforeDestroy() {
     document.removeEventListener('mousemove', this.onMouseMove);
     document.removeEventListener('mouseup', this.onMouseUp);
+    const comp = this.$refs.contentComp;
+    if (comp) {
+      comp.$off('hook:updated', this.syncChildFooter);
+    }
   },
 
   methods: {
@@ -201,6 +258,51 @@ export default {
 
     handleClose() {
       this.reject('closed');
+    },
+
+    handleFooterButton(btn) {
+      if (btn.action === 'resolve') {
+        this.resolve(btn.value);
+      } else {
+        this.reject(btn.value);
+      }
+    },
+
+    syncChildFooter() {
+      const comp = this.$refs.contentComp;
+      if (!comp) return;
+      const root = comp._vnode;
+      if (root === this._lastChildVnode) return;
+      this._lastChildVnode = root;
+      this._childFooterVnodes = this.extractFooterVnodes(root);
+      if (!this._footerHookAttached) {
+        this._footerHookAttached = true;
+        comp.$on('hook:updated', this.syncChildFooter);
+      }
+      this.$forceUpdate();
+    },
+
+    extractFooterVnodes(root) {
+      const result = [];
+      if (!root || !root.children) return result;
+      for (const child of root.children) {
+        if (child.data && child.data.slot === 'footer') {
+          const nodes = child.tag === 'template' && child.children ? child.children : [child];
+          for (const node of nodes) {
+            if (node.data) {
+              delete node.data.slot;
+              if (node.data.attrs) {
+                delete node.data.attrs.slot;
+              }
+            }
+            if (node.elm && node.elm.parentNode) {
+              node.elm.parentNode.removeChild(node.elm);
+            }
+          }
+          result.push(...nodes);
+        }
+      }
+      return result;
     },
 
     reject(reason) {

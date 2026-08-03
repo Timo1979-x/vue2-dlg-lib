@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import DialogWindow from './DialogWindow.vue';
+import { FOOTER_BUTTONS } from './footerButtons';
 
 const BASE_Z_INDEX = 2000;
 const Z_INDEX_STEP = 10;
@@ -61,7 +62,7 @@ export default class DialogManager {
       closeOnClickOutside = true,
       resizable = true,
       draggable = true,
-      footer = null,
+      footerButtons = FOOTER_BUTTONS.CLOSE,
     } = options;
 
     return new Promise((resolve, reject) => {
@@ -113,19 +114,10 @@ export default class DialogManager {
           closeOnClickOutside,
           resizable,
           draggable,
+          footerButtons,
           zIndex,
         },
       });
-
-      if (typeof footer === 'function') {
-        const footerVnodes = footer(vm.$createElement, {
-          resolve: entry.resolve,
-          reject: entry.reject,
-        });
-        vm.$slots.footer = footerVnodes
-          ? (Array.isArray(footerVnodes) ? footerVnodes : [footerVnodes])
-          : [];
-      }
 
       vm.$on('resolve', entry.resolve);
       vm.$on('reject', entry.reject);

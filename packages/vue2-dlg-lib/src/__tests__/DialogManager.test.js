@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import Vue from 'vue'
 import DialogManager from '../dialog/DialogManager'
+import { FOOTER_BUTTONS } from '../dialog/footerButtons'
 
 describe('DialogManager', () => {
   let manager
@@ -109,51 +110,122 @@ describe('DialogManager', () => {
     expect(el.tagName).toBe('DIV')
   })
 
-  it('renders default footer with close button when no footer option', () => {
+  it('renders default footer with close button when no footerButtons option', () => {
     manager.open({ title: 'test' })
-    expect(document.querySelector('.vdl-dialog__btn--primary')).toBeTruthy()
+    const btn = document.querySelector('.vdl-dialog__footer .vdl-dialog__btn--primary')
+    expect(btn).toBeTruthy()
+    expect(btn.textContent.trim()).toBe('Закрыть')
   })
 
-  it('renders custom footer buttons from footer render function', () => {
+  it('renders standard footer buttons selected by bitmask', () => {
     manager.open({
       title: 'test',
-      footer: (h) => [
-        h('button', { class: 'custom-footer-deny', on: { click: () => {} } }, 'Deny'),
-        h('button', { class: 'custom-footer-approve', on: { click: () => {} } }, 'Approve'),
-      ],
+      footerButtons: FOOTER_BUTTONS.OK | FOOTER_BUTTONS.CANCEL,
     })
-    const deny = document.querySelector('.custom-footer-deny')
-    const approve = document.querySelector('.custom-footer-approve')
-    expect(deny).toBeTruthy()
-    expect(deny.textContent).toBe('Deny')
-    expect(approve).toBeTruthy()
-    expect(approve.textContent).toBe('Approve')
+    const buttons = Array.from(document.querySelectorAll('.vdl-dialog__footer .vdl-dialog__btn'))
+    const labels = buttons.map((b) => b.textContent.trim())
+    expect(labels).toEqual(['Ок', 'Отмена'])
+  })
+
+  it('renders all standard footer buttons when the full bitmask is passed', () => {
+    manager.open({
+      title: 'test',
+      footerButtons: FOOTER_BUTTONS.OK | FOOTER_BUTTONS.YES | FOOTER_BUTTONS.NO | FOOTER_BUTTONS.CLOSE | FOOTER_BUTTONS.CANCEL,
+    })
+    const labels = Array.from(document.querySelectorAll('.vdl-dialog__footer .vdl-dialog__btn'))
+      .map((b) => b.textContent.trim())
+    expect(labels).toEqual(['Ок', 'Да', 'Нет', 'Закрыть', 'Отмена'])
+  })
+
+  it('renders no footer buttons when bitmask is 0', () => {
+    manager.open({ title: 'test', footerButtons: 0 })
+    expect(document.querySelector('.vdl-dialog__footer .vdl-dialog__btn')).toBeNull()
+  })
+
+  it('Ок button resolves the promise with its bitmask value', async () => {
+    const p = manager.open({
+      title: 'test',
+      footerButtons: FOOTER_BUTTONS.OK | FOOTER_BUTTONS.CANCEL,
+    })
+    const buttons = Array.from(document.querySelectorAll('.vdl-dialog__footer .vdl-dialog__btn'))
+    const ok = buttons.find((b) => b.textContent.trim() === 'Ок')
+    ok.click()
+    expect(manager.size).toBe(0)
+    await expect(p).resolves.toBe(FOOTER_BUTTONS.OK)
+  })
+
+  it('Отмена button rejects the promise with its bitmask value', async () => {
+    const p = manager.open({
+      title: 'test',
+      footerButtons: FOOTER_BUTTONS.OK | FOOTER_BUTTONS.CANCEL,
+    })
+    const buttons = Array.from(document.querySelectorAll('.vdl-dialog__footer .vdl-dialog__btn'))
+    const cancel = buttons.find((b) => b.textContent.trim() === 'Отмена')
+    cancel.click()
+    expect(manager.size).toBe(0)
+    await expect(p).rejects.toBe(FOOTER_BUTTONS.CANCEL)
+  })
+
+  it('default close button rejects the promise with CLOSE bitmask value', async () => {
+    const p = manager.open({ title: 'test' })
+    document.querySelector('.vdl-dialog__footer .vdl-dialog__btn--primary').click()
+    expect(manager.size).toBe(0)
+    await expect(p).rejects.toBe(FOOTER_BUTTONS.CLOSE)
+  })
+
+  it('renders footer buttons from the content component named slot', async () => {
+    const Child = {
+      template: `
+        <div>
+          <p>content</p>
+          <template slot="footer">
+            <button class="child-footer-ok" @click="handleOk">Ок</button>
+          </template>
+        </div>
+      `,
+      props: {
+        dialogResolve: {
+          type: Function,
+          default: () => {},
+        },
+      },
+      methods: {
+        handleOk() {
+          this.dialogResolve({ fromChild: true })
+        },
+      },
+    }
+    const p = manager.open({
+      title: 'test',
+      contentComponent: Child,
+    })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    const btn = document.querySelector('.child-footer-ok')
+    expect(btn).toBeTruthy()
+    expect(btn.textContent.trim()).toBe('Ок')
+    btn.click()
+    expect(manager.size).toBe(0)
+    await expect(p).resolves.toEqual({ fromChild: true })
+  })
+
+  it('content component footer slot takes precedence over standard buttons', async () => {
+    const Child = {
+      template: `
+        <div>
+          <p>content</p>
+          <template slot="footer">
+            <button class="child-footer-custom">Custom</button>
+          </template>
+        </div>
+      `,
+    }
+    manager.open({
+      title: 'test',
+      contentComponent: Child,
+      footerButtons: FOOTER_BUTTONS.OK | FOOTER_BUTTONS.CANCEL,
+    })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(document.querySelector('.child-footer-custom')).toBeTruthy()
     expect(document.querySelector('.vdl-dialog__btn--primary')).toBeNull()
-  })
-
-  it('custom footer button resolves the dialog promise', async () => {
-    const p = manager.open({
-      title: 'test',
-      footer: (h, { resolve }) => h('button', {
-        class: 'custom-footer-approve',
-        on: { click: () => resolve({ approved: true }) },
-      }, 'Approve'),
-    })
-    document.querySelector('.custom-footer-approve').click()
-    expect(manager.size).toBe(0)
-    await expect(p).resolves.toEqual({ approved: true })
-  })
-
-  it('custom footer button rejects the dialog promise', async () => {
-    const p = manager.open({
-      title: 'test',
-      footer: (h, { reject }) => h('button', {
-        class: 'custom-footer-deny',
-        on: { click: () => reject('user denied') },
-      }, 'Deny'),
-    })
-    document.querySelector('.custom-footer-deny').click()
-    expect(manager.size).toBe(0)
-    await expect(p).rejects.toBe('user denied')
   })
 })

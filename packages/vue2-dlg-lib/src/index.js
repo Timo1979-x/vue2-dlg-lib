@@ -8,6 +8,7 @@ import install, {
 } from './install';
 
 import DialogWindow from './dialog/DialogWindow.vue';
+import { FOOTER_BUTTONS } from './dialog/footerButtons';
 
 export {
   install as default,
@@ -18,4 +19,5 @@ export {
   getToastManager,
   getPopupMenuManager,
   DialogWindow,
+  FOOTER_BUTTONS,
 };
